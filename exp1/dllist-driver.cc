@@ -15,16 +15,15 @@ void GenerateN(int N, DLList *list) {
 }
 
 void RemoveN(int N, DLList *list) {
-    int key;
-    int *item_ptr;
+    int* key_ptr;
     while (N--) {
-        item_ptr = (int *)list->Remove();
-        list->Show();
-        if (item_ptr) {
-            printf("Remove an item which key is %d\n", key);
+        key_ptr = (int *)list->Remove();    
+        if (key_ptr) {
+            printf("Remove an item which key is %d\n", *key_ptr);
         } else {
             printf("List is empty!\n");
         }
+        list->Show();
     }
 }
 
@@ -40,3 +39,4 @@ void RemoveN(int N, DLList *list) {
 // 	GenerateN(N,test);
 // 	RemoveN(N,test);
 // }
+

@@ -110,9 +110,10 @@ void DLList::Append(void* item)
 	}
 	return;
 }
-void* DLList::Remove()
+void* DLList::Remove()				//修改点3，这个地方 原有 int* keyPtr 好像没用。
 {
 	DLLElement* temp;
+	temp = first;
 	if (IsEmpty())	// if list is empty
 	{
 		return NULL;
@@ -124,11 +125,9 @@ void* DLList::Remove()
 	}
 	else
 	{
-		temp = first->next;
-		temp->prev = NULL;
-		first = temp;
+		first = first->next;
 	}
-	return &(first->key);
+	return &(temp->key);
 }
 
 bool DLList::IsEmpty()
@@ -242,6 +241,8 @@ void DLList::Show()
 {
 	int flag = 1;
 	DLLElement* p = first;
+	if (p == NULL)
+		printf("Empty list!!!!!\n");
 	while (p)
 	{
 		printf(" %d(%d) ", flag, p->key);
