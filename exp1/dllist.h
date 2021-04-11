@@ -14,8 +14,11 @@ public:
 }
 
 class DLList{
-public:
+public:	
+	int err_type;   // type of concurrent errors
+
 	DLList();	//initialize a list
+	DLList(int err_type);
 	~DLList();	//de-allocate the list
 
 	void Prepend(void *item);	//add to head of list (set key = min_key-1)
@@ -23,9 +26,11 @@ public:
 	void *Remove();				//remove from head of list
 								//return *key of the removed item
 	bool IsEmpty();				//return false if list has elements
-
+	void show();
 	void SortedInsert(void *item, int sortKey);
 	void *SortedRemove(int sortKey);	//remove first item with key==sortKey
+
+	
 
 private:
 	DLLElement *first;	//head of the list

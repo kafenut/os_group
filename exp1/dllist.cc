@@ -1,9 +1,11 @@
 #include<stdio.h>
 #include<iostream>
-#include"ddlist.h"
+#include"dllist.h"
 
 using namespace std;
 
+class DLLElement;
+class DLList;
 // class DLLElement
 // {
 // public:
@@ -25,29 +27,37 @@ DLLElement::DLLElement(void* itemPtr, int sortKey)
 }
 
 
-// class DLList{
+// class DLList {
 // public:
 // 	DLList();	//initialize a list
+// 	DLList(int err_type);
 // 	~DLList();	//de-allocate the list
 
-// 	void Prepend(void *item);	//add to head of list (set key = min_key-1)
-// 	void Append(void *item);	//add to tail of list (set key = max_key+1)
-// 	void *Remove();				//remove from head of list
-// 								//return *key of the removed item
+// 	void Prepend(void* item);	//add to head of list (set key = min_key-1)
+// 	void Append(void* item);	//add to tail of list (set key = max_key+1)
+// 	void* Remove();	//remove from head of list
+// 								//set *keyPtr to key of the removed item
 // 	bool IsEmpty();				//return false if list has elements
-
-// 	void SortedInsert(void *item, int sortKey);
-// 	void *SortedRemove(int sortKey);	//remove first item with key==sortKey
+// 	void Show();
+// 	void SortedInsert(void* item, int sortKey);
+// 	void* SortedRemove(int sortKey);	//remove first item with key==sortKey
 
 // private:
-// 	DLLElement *first;	//head of the list
-// 	DLLElement *last;	//last of the list
-// }
+// 	DLLElement* first;	//head of the list
+// 	DLLElement* last;	//last of the list
+// 	int err_type;   // type of concurrent errors
+// };
 
 DLList::DLList()
 {
 	first = NULL;
 	last = NULL;
+	err_type = -1;
+}
+DLList::DLList(int err_type)
+{
+    first = last = NULL;
+    this->err_type = err_type;
 }
 DLList::~DLList()
 {
@@ -100,7 +110,7 @@ void DLList::Append(void* item)
 	}
 	return;
 }
-void* DLList::Remove()				//
+void* DLList::Remove()
 {
 	DLLElement* temp;
 	if (IsEmpty())	// if list is empty
@@ -120,6 +130,7 @@ void* DLList::Remove()				//
 	}
 	return &(first->key);
 }
+
 bool DLList::IsEmpty()
 {
 	if (first == NULL)
@@ -141,11 +152,11 @@ void DLList::SortedInsert(void* item, int sortKey)
 		DLLElement* p = first;
 		while (p)
 		{
-			if (ele->key < p->key || p ->next== NULL)			//
+			if (ele->key < p->key || p ->next== NULL)
 				break;
 			else
-		}
 				p = p->next;
+		}
 		if (first == p)		// if insert to head
 		{
 			if (p->key <= ele->key)
