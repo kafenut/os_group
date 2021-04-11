@@ -1,19 +1,21 @@
 #include<stdio.h>
 #include<iostream>
+#include"ddlist.h"
+
 using namespace std;
 
-class DLLElement
-{
-public:
-	DLLElement(void* itemPtr, int sortKey); // initialize a list element
+// class DLLElement
+// {
+// public:
+// 	DLLElement(void* itemPtr, int sortKey); // initialize a list element
 
-	DLLElement* next; // next element on list
-					  // NULL if this is the last
-	DLLElement* prev; // previous element on list
-					  // NULL if this is the first
-	int key;          // priority, for a sorted list
-	void* item;       // pointer to item on the list
-};
+// 	DLLElement* next; // next element on list
+// 					  // NULL if this is the last
+// 	DLLElement* prev; // previous element on list
+// 					  // NULL if this is the first
+// 	int key;          // priority, for a sorted list
+// 	void* item;       // pointer to item on the list
+// };
 
 DLLElement::DLLElement(void* itemPtr, int sortKey)
 {
@@ -23,24 +25,24 @@ DLLElement::DLLElement(void* itemPtr, int sortKey)
 }
 
 
-class DLList{
-public:
-	DLList();	//initialize a list
-	~DLList();	//de-allocate the list
+// class DLList{
+// public:
+// 	DLList();	//initialize a list
+// 	~DLList();	//de-allocate the list
 
-	void Prepend(void *item);	//add to head of list (set key = min_key-1)
-	void Append(void *item);	//add to tail of list (set key = max_key+1)
-	void *Remove();				//remove from head of list
-								//return *key of the removed item
-	bool IsEmpty();				//return false if list has elements
+// 	void Prepend(void *item);	//add to head of list (set key = min_key-1)
+// 	void Append(void *item);	//add to tail of list (set key = max_key+1)
+// 	void *Remove();				//remove from head of list
+// 								//return *key of the removed item
+// 	bool IsEmpty();				//return false if list has elements
 
-	void SortedInsert(void *item, int sortKey);
-	void *SortedRemove(int sortKey);	//remove first item with key==sortKey
+// 	void SortedInsert(void *item, int sortKey);
+// 	void *SortedRemove(int sortKey);	//remove first item with key==sortKey
 
-private:
-	DLLElement *first;	//head of the list
-	DLLElement *last;	//last of the list
-}
+// private:
+// 	DLLElement *first;	//head of the list
+// 	DLLElement *last;	//last of the list
+// }
 
 DLList::DLList()
 {
@@ -139,12 +141,12 @@ void DLList::SortedInsert(void* item, int sortKey)
 		DLLElement* p = first;
 		while (p)
 		{
-			if (ele->key < p->key || p ->next== NULL)			//王贝伦修改点1
+			if (ele->key < p->key || p ->next== NULL)			//
 				break;
 			else
-				p = p->next;
 		}
-		if (first == p)		// if insert to head			//修改点2：链表中已有一个节点时，也要对比大小
+				p = p->next;
+		if (first == p)		// if insert to head
 		{
 			if (p->key <= ele->key)
 			{
