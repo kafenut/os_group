@@ -60,9 +60,28 @@ ConcurrentError1(int which)
     currentThread->Yield();
 }
 
-const int error_num = 1;    // total number of concurrent errors
+void
+ConcurrentError2(int which)
+{
+    int key[] = {5,4,3,8,9,10};
+    int item[] = {11,22,33,44,55,66};
+    int i = 0;
+    while (++i < 4) {
+        printf("*** thread %d is going to insert an item with key: %d\n",
+                                            which, key[(i - 1) * 2 + which]);
+        list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
+        list->Show();
+        currentThread->Yield();
+    }
+    //printf("*** thread %d\n", which);
+    //currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(3, list);
+}
+
+const int error_num = 2;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1};//, ConcurrentError2, ConcurrentError3,
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2};//, ConcurrentError3,
                                     //ConcurrentError4, ConcurrentError5, ConcurrentError6};
 
 //----------------------------------------------------------------------

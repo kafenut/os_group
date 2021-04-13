@@ -1,23 +1,28 @@
-#include<stdio.h>
-#include<iostream>
+#include <cstddef>
 #include"dllist.h"
-
+#include<stdio.h>
+#include<stdlib.h>
+#include<iostream>
+#include "system.h"
 using namespace std;
 
-class DLLElement;
-class DLList;
-// class DLLElement
-// {
-// public:
-// 	DLLElement(void* itemPtr, int sortKey); // initialize a list element
+class DLLElement
+{
+public:
+	DLLElement(void* itemPtr, int sortKey); // initialize a list element
 
-// 	DLLElement* next; // next element on list
-// 					  // NULL if this is the last
-// 	DLLElement* prev; // previous element on list
-// 					  // NULL if this is the first
-// 	int key;          // priority, for a sorted list
-// 	void* item;       // pointer to item on the list
-// };
+	DLLElement* next; // next element on list
+					  // NULL if this is the last
+	DLLElement* prev; // previous element on list
+					  // NULL if this is the first
+	int key;          // priority, for a sorted list
+	void* item;       // pointer to item on the list
+};
+
+//----------------------------------------------------------------------
+// DLLElement::DLLElement
+//	    Initialize an element.
+//----------------------------------------------------------------------
 
 DLLElement::DLLElement(void* itemPtr, int sortKey)
 {
@@ -25,28 +30,6 @@ DLLElement::DLLElement(void* itemPtr, int sortKey)
 	item = itemPtr;
 	key = sortKey;
 }
-
-
-// class DLList {
-// public:
-// 	DLList();	//initialize a list
-// 	DLList(int err_type);
-// 	~DLList();	//de-allocate the list
-
-// 	void Prepend(void* item);	//add to head of list (set key = min_key-1)
-// 	void Append(void* item);	//add to tail of list (set key = max_key+1)
-// 	void* Remove();	//remove from head of list
-// 								//set *keyPtr to key of the removed item
-// 	bool IsEmpty();				//return false if list has elements
-// 	void Show();
-// 	void SortedInsert(void* item, int sortKey);
-// 	void* SortedRemove(int sortKey);	//remove first item with key==sortKey
-
-// private:
-// 	DLLElement* first;	//head of the list
-// 	DLLElement* last;	//last of the list
-// 	int err_type;   // type of concurrent errors
-// };
 
 DLList::DLList()
 {
@@ -110,7 +93,7 @@ void DLList::Append(void* item)
 	}
 	return;
 }
-void* DLList::Remove()				//ä¿®æ”¹ç‚¹3ï¼Œè¿™ä¸ªåœ°æ–¹ åŽŸæœ‰ int* keyPtr å¥½åƒæ²¡ç”¨ã€‚
+void* DLList::Remove()				//ÐÞ¸Äµã3£¬Õâ¸öµØ·½ Ô­ÓÐ int* keyPtr ºÃÏñÃ»ÓÃ¡£
 {
 	DLLElement* temp;
 	temp = first;
@@ -129,6 +112,7 @@ void* DLList::Remove()				//ä¿®æ”¹ç‚¹3ï¼Œè¿™ä¸ªåœ°æ–¹ åŽŸæœ‰ int* keyPtr å¥½åƒæ
 	}
 	return &(temp->key);
 }
+
 
 bool DLList::IsEmpty()
 {
@@ -151,54 +135,44 @@ void DLList::SortedInsert(void* item, int sortKey)
 		DLLElement* p = first;
 		while (p)
 		{
-			if (ele->key < p->key || p ->next== NULL)
+			if (ele->key < p->key)			//Íõ±´Â×ÐÞ¸Äµã1
 				break;
 			else
 				p = p->next;
 		}
-		if (first == p)		// if insert to head
+		if (first == p)		// if insert to head			//ÐÞ¸Äµã2£ºÁ´±íÖÐÒÑÓÐÒ»¸ö½ÚµãÊ±£¬Ò²Òª¶Ô±È´óÐ¡
 		{
-			if (p->key <= ele->key)
-			{
-				ele->prev = p;
-				ele->next = NULL;
-				p->next = ele;
-				last = ele;
-			}
-			else
-			{
-				first = ele;
-				ele->prev = NULL;
-				ele->next = p;
-				p->prev = ele;
-			}
+            ele->prev = NULL;
+            ele->next = p;
+            p->prev = ele;
 
+            if(err_type == 2){
+                currentThread->Yield();}
+
+            first = ele;
 		}
 
 		else if (p == NULL)	// if insert to tail
 		{
-			p = last;
-			last = ele;
+            p = last;
 			p->next = ele;
 			ele->next = NULL;
 			ele->prev = p;
+
+			if(err_type == 2){
+                currentThread->Yield();}
+
+            last = ele;
 		}
 		else 				//if insert to center
 		{
-			if (p->key <= ele->key)
-			{
-				p->next = ele;
-				ele->next = NULL;
-				ele->prev = p;
-				last = ele;
-			}
-			else
-			{
-				ele->prev = p->prev;
-				ele->next = p;
-				p->prev->next = ele;
-				p->prev = ele;
-			}
+			ele->prev = p->prev;
+            ele->next = p;
+            p->prev->next = ele;
+            p->prev = ele;
+
+            if(err_type == 2){
+                currentThread->Yield();}
 		}
 	}
 	return;
@@ -241,8 +215,6 @@ void DLList::Show()
 {
 	int flag = 1;
 	DLLElement* p = first;
-	if (p == NULL)
-		printf("Empty list!!!!!\n");
 	while (p)
 	{
 		printf(" %d(%d) ", flag, p->key);
@@ -252,38 +224,7 @@ void DLList::Show()
 	printf("\n");
 	if(first&&last)
 		printf("f:%d l:%d", first->key, last->key);
+    else
+		printf("Empty List!");
 	printf("\n");
 }
-
-// int main()
-// {
-// 	int N = 10;
-// 	int i;
-// 	int s = 0, key;
-// 	int* item_ptr;
-// 	DLList pt;
-// 	DLList* test=&pt;
-
-// 	for (i = 0; i < N; i++) {
-// 		test->SortedInsert(&s, (int)(rand() % 100));
-// 	}
-// 	test->Show();
-// 	//for (i = 0; i < N; i++) {
-// 	//	test->Remove();
-// 	//}
-// 	test->Show();
-// 	test->SortedRemove(78);
-// 	test->Show();
-// 	test->SortedRemove(62);
-// 	test->Show();
-// 	test->SortedRemove(41);
-// 	test->Show();
-// 	test->SortedRemove(0);
-// 	test->Show();
-// 	test->Append(&s);
-// 	test->Show();
-// 	test->Prepend(&s);
-// 	test->Show();
-// 	test->Remove();
-// 	test->Show();
-// }
