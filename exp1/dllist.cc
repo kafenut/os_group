@@ -110,7 +110,7 @@ void DLList::Append(void* item)
 	}
 	return;
 }
-void* DLList::Remove()				//修改点3，这个地方 原有 int* keyPtr 好像没用。
+void* DLList::Remove()				//??牡???????胤? 原? int* keyPtr ???????
 {
 	DLLElement* temp;
 	temp = first;
@@ -143,6 +143,10 @@ void DLList::SortedInsert(void* item, int sortKey)
 	if (IsEmpty())	// if list is empty
 	{
 		first = ele;
+
+		if (this->err_type == 3)
+			currentThread->Yield();
+
 		last = ele;
 		ele->prev = NULL;
 		ele->next = NULL;
@@ -152,12 +156,12 @@ void DLList::SortedInsert(void* item, int sortKey)
 		DLLElement* p = first;
 		while (p)
 		{
-			if (ele->key < p->key)			//王贝伦修改点1
+			if (ele->key < p->key)			//??????牡?
 				break;
 			else
 				p = p->next;
 		}
-		if (first == p)		// if insert to head			//修改点2：链表中已有一个节点时，也要对比大小
+		if (first == p)		// if insert to head			//??牡??????????????诘????也要?员却??
 		{
             ele->prev = NULL;
             ele->next = p;
