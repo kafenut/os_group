@@ -107,7 +107,6 @@ main(int argc, char **argv)
 			T = atoi(argv[2]);
 			N = atoi(argv[3]);
 			E = atoi(argv[4]);
-			RandomInit(unsigned(T * T + N * N));	// initialize pseudo-random
 			argCount += 3;
 		}
         argCount++;

@@ -168,7 +168,8 @@ void DLList::SortedInsert(void* item, int sortKey)
             p->prev = ele;
 
             if(this->err_type == 2){
-                currentThread->Yield();}
+                currentThread->Yield();
+                printf("Return to the SortedInsert work of %d!\n",ele->key);}
 
             first = ele;
 		}
@@ -181,7 +182,8 @@ void DLList::SortedInsert(void* item, int sortKey)
 			ele->prev = p;
 
 			if(this->err_type == 2){
-                currentThread->Yield();}
+                currentThread->Yield();
+                printf("Return to the SortedInsert work of %d!\n",ele->key);}
 
             last = ele;
 		}

@@ -63,8 +63,8 @@ ConcurrentError1(int which)
 void
 ConcurrentError2(int which)
 {
-    int key[] = {5,4,3,8,9,10};
-    int item[] = {11,22,33,44,55,66};
+    int key[] = { 3,2,1,4,5,6};
+    int item[] = {1,2,3,4,5,6};
     int i = 0;
     while (++i < 4) {
         printf("*** thread %d is going to insert an item with key: %d\n",
@@ -73,8 +73,6 @@ ConcurrentError2(int which)
         list->Show();
         currentThread->Yield();
     }
-    //printf("*** thread %d\n", which);
-    //currentThread->Yield();
     printf("*** thread %d\n", which);
     RemoveN(3, list);
 }
@@ -134,11 +132,6 @@ ThreadTest2()
     if (E > error_num || E < 1) {
         printf("No concurrent error specified.\n");
         return;
-    } else if (E == 5 || E == 6) {
-        printf("To better demonstrate the concurrency error, we use the "
-            "set key value here, and do not support customizing the "
-            "number of insert elements and threads.\n");
-        T = 2;  // to better demonstrate the concurrency error
     }
 
     list = new DLList(E);
