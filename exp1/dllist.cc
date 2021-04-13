@@ -110,7 +110,7 @@ void DLList::Append(void* item)
 	}
 	return;
 }
-void* DLList::Remove()				//??ĵ???????ط? ԭ? int* keyPtr ???????
+void* DLList::Remove()
 {
 	DLLElement* temp;
 	temp = first;
@@ -156,18 +156,18 @@ void DLList::SortedInsert(void* item, int sortKey)
 		DLLElement* p = first;
 		while (p)
 		{
-			if (ele->key < p->key)			//??????ĵ?
+			if (ele->key < p->key)
 				break;
 			else
 				p = p->next;
 		}
-		if (first == p)		// if insert to head			//??ĵ??????????????ڵ????ҲҪ?Աȴ??
+		if (first == p)		// if insert to head
 		{
             ele->prev = NULL;
             ele->next = p;
             p->prev = ele;
 
-            if(err_type == 2){
+            if(this->err_type == 2){
                 currentThread->Yield();}
 
             first = ele;
@@ -180,7 +180,7 @@ void DLList::SortedInsert(void* item, int sortKey)
 			ele->next = NULL;
 			ele->prev = p;
 
-			if(err_type == 2){
+			if(this->err_type == 2){
                 currentThread->Yield();}
 
             last = ele;
@@ -192,7 +192,7 @@ void DLList::SortedInsert(void* item, int sortKey)
             p->prev->next = ele;
             p->prev = ele;
 
-            if(err_type == 2){
+            if(this->err_type == 2){
                 currentThread->Yield();}
 		}
 	}
