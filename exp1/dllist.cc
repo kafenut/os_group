@@ -1,28 +1,24 @@
-#include <cstddef>
-#include"dllist.h"
 #include<stdio.h>
-#include<stdlib.h>
 #include<iostream>
+#include"dllist.h"
 #include "system.h"
+
 using namespace std;
 
-class DLLElement
-{
-public:
-	DLLElement(void* itemPtr, int sortKey); // initialize a list element
+class DLLElement;
+class DLList;
+// class DLLElement
+// {
+// public:
+// 	DLLElement(void* itemPtr, int sortKey); // initialize a list element
 
-	DLLElement* next; // next element on list
-					  // NULL if this is the last
-	DLLElement* prev; // previous element on list
-					  // NULL if this is the first
-	int key;          // priority, for a sorted list
-	void* item;       // pointer to item on the list
-};
-
-//----------------------------------------------------------------------
-// DLLElement::DLLElement
-//	    Initialize an element.
-//----------------------------------------------------------------------
+// 	DLLElement* next; // next element on list
+// 					  // NULL if this is the last
+// 	DLLElement* prev; // previous element on list
+// 					  // NULL if this is the first
+// 	int key;          // priority, for a sorted list
+// 	void* item;       // pointer to item on the list
+// };
 
 DLLElement::DLLElement(void* itemPtr, int sortKey)
 {
@@ -30,6 +26,27 @@ DLLElement::DLLElement(void* itemPtr, int sortKey)
 	item = itemPtr;
 	key = sortKey;
 }
+
+// class DLList {
+// public:
+// 	DLList();	//initialize a list
+// 	DLList(int err_type);
+// 	~DLList();	//de-allocate the list
+
+// 	void Prepend(void* item);	//add to head of list (set key = min_key-1)
+// 	void Append(void* item);	//add to tail of list (set key = max_key+1)
+// 	void* Remove();	//remove from head of list
+// 								//set *keyPtr to key of the removed item
+// 	bool IsEmpty();				//return false if list has elements
+// 	void Show();
+// 	void SortedInsert(void* item, int sortKey);
+// 	void* SortedRemove(int sortKey);	//remove first item with key==sortKey
+
+// private:
+// 	DLLElement* first;	//head of the list
+// 	DLLElement* last;	//last of the list
+// 	int err_type;   // type of concurrent errors
+// };
 
 DLList::DLList()
 {

@@ -52,7 +52,6 @@
 
 #include "utility.h"
 #include "system.h"
-#include "hello.h"
 
 #ifdef THREADS
 extern int testnum;
@@ -60,7 +59,6 @@ extern int testnum;
 
 // External functions used by this file
 
-extern void hello();
 extern void ThreadTest(int T, int N, int E), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);

@@ -1,8 +1,6 @@
-#include <cstddef>
-#include"dllist.h"
 #include<stdio.h>
 #include<stdlib.h>
-#include<iostream>
+#include"dllist.h"
 #include "system.h"
 
 void GenerateN(int N, DLList *list) {
