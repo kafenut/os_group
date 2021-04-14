@@ -120,6 +120,12 @@ void* DLList::Remove()
 	}
 	else if (first == last)	// if there is only one element
 	{
+		if(this->err_type == 4)
+		{
+			printf("remove---If there is only one element,turn to thread0\n");
+			currentThread->Yield();
+		}
+		printf("back to remove\n");
 		first = NULL;
 		last = NULL;
 	}
@@ -159,8 +165,11 @@ void DLList::SortedInsert(void* item, int sortKey)
 			if (ele->key < p->key)
 				break;
 			else
+			{
 				p = p->next;
+			}
 		}
+
 		if (first == p)		// if insert to head
 		{
             ele->prev = NULL;

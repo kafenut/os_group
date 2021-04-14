@@ -95,10 +95,48 @@ ConcurrentError3(int which)
     printf("*** thread %d\n", which);
     RemoveN(3, list);
 }
+void
+ConcurrentError4(int which)
+{
+    int item[] = {0,0,0,0,0,0};
+    int i = 0;
+	if(which == 0)
+	{
+		printf("*** thread %d is going to insert the first element key = 10 \n",which);
+		list->SortedInsert(&item[i], 10);
+		list->Show();
+		currentThread->Yield();
+	    while (i++ < 3)
+		{
+			printf("***1 thread %d\n",which);
+			list->Prepend(&item[i]);
+			list->Show();
+		}
+				currentThread->Yield();
+		while (i++ <=6)
+		{
+			printf("***1 thread %d\n",which);
+			list->Prepend(&item[i]);
+			list->Show();
+		}
 
-const int error_num = 3;    // total number of concurrent errors
+	}
+	else
+	{
+		printf("*** thread %d remove\n",which);
+		list->Remove();
+		list->Show();
+		currentThread->Yield();
+	}
+	
+
+    //printf("*** thread %d\n", which);
+    //currentThread->Yield();
+    //printf("*** thread %d\n", which);
+}
+const int error_num = 4;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3};
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,ConcurrentError4};
                                     //ConcurrentError4, ConcurrentError5, ConcurrentError6};
 
 //----------------------------------------------------------------------
