@@ -22,7 +22,7 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch-sem.h"
+#include "synch.h"
 #include "system.h"
 
 //----------------------------------------------------------------------
@@ -106,7 +106,7 @@ Lock::Lock(char* debugName)
     name = debugName;
     isBusy = false;
     owner = NULL;
-    sema = new Semaphore(name, 1)   // binary semaphore
+    sema = new Semaphore(name, 1);   // binary semaphore
 }
 
 Lock::~Lock() 
@@ -156,8 +156,8 @@ void Condition::Wait(Lock* conditionLock)
 {
     ASSERT(conditionLock->isHeldByCurrentThread()); // ensure thread get mutex lock
     
-    Semaphore *sema;
-    sema = Semaphore("condition", 0);
+    Semaphore* sema;
+    sema = new Semaphore("condition", 0);
     queue->Append((void *)sema);        // semaphore enqueues
     
     conditionLock->Release();           // release mutex lock
@@ -169,6 +169,7 @@ void Condition::Signal(Lock* conditionLock)
 { 
     ASSERT(conditionLock->isHeldByCurrentThread());
 
+    Semaphore* sema;
     if (!queue->IsEmpty())
     {
         sema = (Semaphore *)queue->Remove();
@@ -180,6 +181,7 @@ void Condition::Broadcast(Lock* conditionLock)
 { 
     ASSERT(conditionLock->isHeldByCurrentThread());
 
+    Semaphore* sema;
     while (!queue->IsEmpty())
     {
         sema = (Semaphore *)queue->Remove();

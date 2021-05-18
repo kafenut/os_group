@@ -22,7 +22,7 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch-sleep.h"
+#include "synch.h"
 #include "system.h"
 
 Semaphore::Semaphore(char* debugName, int initialValue)
@@ -190,7 +190,7 @@ void Condition::Broadcast(Lock* conditionLock)
 
     Thread* thread;
     ASSERT(conditionLock->isHeldByCurrentThread());
-    while(!queue->IsEmpty)   // wake up all threads
+    while(!queue->IsEmpty())   // wake up all threads
     {
         thread = (Thread *)queue->Remove();
         scheduler->ReadyToRun(thread);  // use mesa semantics
@@ -198,3 +198,4 @@ void Condition::Broadcast(Lock* conditionLock)
 
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
+

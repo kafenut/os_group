@@ -36,6 +36,21 @@
 // and some other thread might have called P or V, so the true value might
 // now be different.
 
+class Semaphore {
+  public:
+    Semaphore(char* debugName, int initialValue);   // set initial value
+    ~Semaphore();                       // de-allocate semaphore
+    char* getName() { return name;}         // debugging assist
+    
+    void P();    // these are the only operations on a semaphore
+    void V();    // they are both *atomic*
+
+  private:
+    char* name;        // useful for debugging
+    int value;         // semaphore value, always >= 0
+    List *queue;       // threads waiting in P() for the value to be > 0
+};
+
 // The following class defines a "lock".  A lock can be BUSY or FREE.
 // There are only two operations allowed on a lock: 
 //
@@ -65,7 +80,7 @@ class Lock {
   private:
     char* name;             // for debugging
     Thread* owner;          // owner of lock
-    List queue;             // waiting queue of lock
+    List* queue;             // waiting queue of lock
     bool isBusy;            // for judge the lock is free or not
 };
 
@@ -118,7 +133,7 @@ class Condition {
 
   private:
     char* name;
-    List queue;     // waiting queue of condition
+    List* queue;     // waiting queue of condition
     // plus some other stuff you'll need to define
 };
 #endif // SYNCH_H
