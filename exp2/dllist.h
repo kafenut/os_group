@@ -1,6 +1,7 @@
 #ifndef DLLIST_H
 #define DLLIST_H
 
+#include "synch.h"
 
 class DLLElement{
 public:
@@ -14,8 +15,8 @@ public:
 };
 
 class DLList{
-public:	
-	
+public:
+
 	DLList();	//initialize a list
 	DLList(int err_type);
 	~DLList();	//de-allocate the list
@@ -29,12 +30,14 @@ public:
 	void SortedInsert(void *item, int sortKey);
 	void *SortedRemove(int sortKey);	//remove first item with key==sortKey
 
-	
+
 
 private:
 	int err_type;   // type of concurrent errors
 	DLLElement *first;	//head of the list
 	DLLElement *last;	//last of the list
+	Lock *lock;
+    Condition *listEmpty;
 };
 #endif
 

@@ -22,7 +22,7 @@ void RemoveN(int N, DLList *list) {
     int *item_ptr;
     while (N--) {
         item_ptr = (int *)list->Remove();
-        key = *item_ptr;
+        //key = *item_ptr;
         list->Show();
         if (item_ptr) {
             printf("Remove an item which key is %d\n", key);

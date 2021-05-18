@@ -53,19 +53,26 @@ DLList::DLList()
 	first = NULL;
 	last = NULL;
 	err_type = -1;
+	lock = new Lock("list lock");
+    listEmpty = new Condition("list empty cond");
 }
 DLList::DLList(int err_type)
 {
     first = last = NULL;
     this->err_type = err_type;
+    lock = new Lock("list lock");
+    listEmpty = new Condition("list empty cond");
 }
 DLList::~DLList()
 {
+	delete lock;
+    delete listEmpty;
 	return;
 }
 
 void DLList::Prepend(void* item)
 {
+	lock->Acquire();
 	DLLElement* ele = new DLLElement(item, 0);
 	if (IsEmpty())	// if list is empty
 	{
@@ -85,10 +92,13 @@ void DLList::Prepend(void* item)
 		first = ele;
 		temp->prev = ele;
 	}
+	listEmpty->Signal(lock);    // wake up a waiter, if any
+    lock->Release();
 	return;
 }
 void DLList::Append(void* item)
 {
+	lock->Acquire();
 	DLLElement* ele = new DLLElement(item, 0);
 	if (IsEmpty())	// if list is empty
 	{
@@ -108,10 +118,16 @@ void DLList::Append(void* item)
 		last = ele;
 		temp->next = ele;
 	}
+	listEmpty->Signal(lock);    // wake up a waiter, if any
+    lock->Release();
 	return;
 }
 void* DLList::Remove()
 {
+	lock->Acquire();
+	while (IsEmpty())
+        listEmpty->Wait(lock);
+
 	DLLElement* temp;
 	temp = first;
 	if (IsEmpty())	// if list is empty
@@ -133,6 +149,7 @@ void* DLList::Remove()
 	{
 		first = first->next;
 	}
+	lock->Release();
 	return &(temp->key);
 }
 
@@ -146,6 +163,7 @@ bool DLList::IsEmpty()
 void DLList::SortedInsert(void* item, int sortKey)
 {
 	DLLElement* ele = new DLLElement(item, sortKey);
+	lock->Acquire();
 	if (IsEmpty())	// if list is empty
 	{
 		first = ele;
@@ -207,20 +225,26 @@ void DLList::SortedInsert(void* item, int sortKey)
                 currentThread->Yield();}
 		}
 	}
+	listEmpty->Signal(lock);    // wake up a waiter, if any
+    lock->Release();
 	return;
 }
 void* DLList::SortedRemove(int sortKey)
 {
+	lock->Acquire();
+	while (IsEmpty())
+        listEmpty->Wait(lock);
+
 	DLLElement* p = first;
 	while (p)
 	{
-
 		if (p->key == sortKey)
 			break;
 		p = p->next;
 	}
 	if (p == NULL)	// no such element
 	{
+		lock->Release();
 		return NULL;
 	}
 	else
@@ -241,6 +265,7 @@ void* DLList::SortedRemove(int sortKey)
 			p->next->prev = p->prev;
 		}
 	}
+	lock->Release();
 	return p;
 }
 void DLList::Show()
