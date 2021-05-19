@@ -163,12 +163,12 @@ void Condition::Wait(Lock* conditionLock)
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
     ASSERT(conditionLock->isHeldByCurrentThread()); // ensure thread get mutex lock
+    queue->Append((void *)currentThread); 
     conditionLock->Release();               // release mutex lock
-    queue->Append((void *)currentThread);   
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
     currentThread->Sleep();                 // go to sleep
     conditionLock->Acquire();               // re-acquire mutex lock
 
-    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
 
 void Condition::Signal(Lock* conditionLock) 

@@ -135,7 +135,6 @@ void Lock::Release()
 {
     ASSERT(isHeldByCurrentThread()); //ensure current thread
                                     //is the owner of the Lock
-    
     isBusy = false;
     owner = NULL;
     sema->V();
@@ -177,6 +176,7 @@ void Condition::Signal(Lock* conditionLock)
         delete sema;
     }
 }
+
 void Condition::Broadcast(Lock* conditionLock) 
 { 
     ASSERT(conditionLock->isHeldByCurrentThread());

@@ -135,7 +135,5 @@ class Condition {
     char* name;
     List* queue;    // a queue contains a series of semaphores
                     // a semaphore corresponds to a thread
-
-    // plus some other stuff you'll need to define
 };
 #endif // SYNCH_H
