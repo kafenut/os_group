@@ -26,11 +26,17 @@ files, etc.
 
 */
 
+#include "synch.h"
+// #include "synch-sleep.h"
+
 
 class Table {
    public:
      // create a table to hold at most 'size' entries.
-     Table(size);
+     Table(int size);
+
+     // de-allocate Table when no longer needed.
+     ~Table();
    
      // allocate a table slot for 'object'.
      // return the table index for the slot or -1 on error.
@@ -45,5 +51,10 @@ class Table {
      void Release(int index);
    private:
      // Your code here.
+     int size;
+     Lock* lock;
+     void** elem;
+
+     
 };
 

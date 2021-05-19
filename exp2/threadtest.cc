@@ -254,7 +254,7 @@ TableActions(int which)
     int indexArr[N];
     //
     for(int i =0; i < N; i++) {
-        void *obj = (void *)(Random() % 100);
+        void *obj = (void *)(Random() % 1000);
         indexArr[i] = table->Alloc(obj);
         printf("*** thread %d stores %d at [%d] ***\n", which, (int)obj, indexArr[i]);
         currentThread->Yield();
@@ -301,20 +301,22 @@ TableTest()
 void
 WriteBuffer(int num)
 {
-    printf("\nCurrent thread is write thread :%s\n", currentThread -> getName());
-    int data[num];
+    printf("\nCurrent thread is %s\n", currentThread->getName());
+    char* data = new char;
     int i;
-    for(i = 0; i<num; i++)
+    for (i = 0; i < num; i++)
     {
-	    *(data + i) = Random() % 100;
+        *(data + i) = (Random() % 26) + 65;
     }
-    printf("%s will write these data to buffer:", currentThread -> getName());
-    for(i = 0;i < num-1;i++)
-        printf("%d ",*(data + i));
-    printf("%d\n",*(data + i));
-    buffer->Write((void *)data,num);
-    printf("%s finished,",currentThread -> getName());
-    buffer->PrintBuffer();
+    printf("%s will write these data to buffer:\n", currentThread->getName());
+    for (i = 0; i < num - 1; i++)
+        printf("%c ", *(data + i));
+    printf("%c\n", *(data + i));
+
+    buffer->Write((void*)data, num);
+
+    printf("%s finished writing.\n", currentThread->getName());
+    buffer->Showbuffer();
 }
 
 //----------------------------------------------------------------------
@@ -326,15 +328,15 @@ WriteBuffer(int num)
 void
 ReadBuffer(int num)
 {
-    printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
-    int data[num + 1];
-    buffer -> Read((void *)data,num);
-    printf("%s finished,read these data from buffer:",currentThread -> getName());
+    printf("\nCurrent thread is read thread :%s\n", currentThread->getName());
+    char* data = new char;
+    buffer->Read((void*)data, num);
+    printf("%s finished,read these data from buffer:", currentThread->getName());
     int i;
-    for (i = 0;i<num-1;i++)
-	printf("%d ",*(data + i));
-    printf("%d\n",*(data + i));
-    buffer -> PrintBuffer();
+    for (i = 0; i < num - 1; i++)
+        printf("%c ", *(data + i));
+    printf("%c\n", *(data + i));
+    buffer->Showbuffer();
 }
 
 

@@ -112,14 +112,13 @@ ConcurrentError4(int which)
 			list->Prepend(&item[i]);
 			list->Show();
 		}
-				currentThread->Yield();
+		currentThread->Yield();
 		while (i++ <=6)
 		{
 			printf("***1 thread %d\n",which);
 			list->Prepend(&item[i]);
 			list->Show();
 		}
-
 	}
 	else
 	{
@@ -128,7 +127,6 @@ ConcurrentError4(int which)
 		list->Show();
 		currentThread->Yield();
 	}
-	
 
     //printf("*** thread %d\n", which);
     //currentThread->Yield();
