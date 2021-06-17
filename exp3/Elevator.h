@@ -1,15 +1,13 @@
 /*
-
 Here are the method signatures for the Elevator and Building classes.
 You should feel free to add to these classes, but do not change the
 existing interfaces.
-
 */
 
 #define STAY 0
 #define UP 1
 #define DOWN 2
-#define TICK 100000  //Pause value
+#define TICK 100000
 
 
 class Elevator {

@@ -4,11 +4,10 @@
 #include "Elevator.h"
 #include "synch.h"
 
-
-
 //----------------------------------------------------------------------
 // Elevator::Elevator
 //----------------------------------------------------------------------
+
 Elevator::Elevator(char *debugName, int numFloors, int myID)
 {
     int i;
@@ -19,7 +18,7 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
     topFloor = numFloors;
     occupancy = 0;
     currentfloor = 1;
-    elevatorState = STAY; //means stay
+    elevatorState = STAY;
     elevatorID = myID;
     capacity = 1;
     name = debugName;
@@ -46,6 +45,7 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
 //----------------------------------------------------------------------
 // Elevator::~Elevator
 //----------------------------------------------------------------------
+
 Elevator::~Elevator()
 {
     int i;
@@ -68,10 +68,8 @@ Elevator::~Elevator()
 
 //----------------------------------------------------------------------
 // Elevator::OpenDoors
-//   signal exiters and enterers to action.Make EventBarriers Send a signal
-// according to whether the up and down request and the door opening request
-// are true
 //----------------------------------------------------------------------
+
 void Elevator::OpenDoors()
 {
     alarms->Pause(TICK);
@@ -87,8 +85,8 @@ void Elevator::OpenDoors()
 
 //----------------------------------------------------------------------
 // Elevator::CloseDoors
-//   after exiters are out and enterers are in
 //----------------------------------------------------------------------
+
 void Elevator::CloseDoors()
 {
     alarms->Pause(TICK);
@@ -104,8 +102,8 @@ void Elevator::CloseDoors()
 
 //----------------------------------------------------------------------
 // Elevator::VisitFloor
-//   Used to broadcast passengers who did not enter because the elevator was full
 //----------------------------------------------------------------------
+
 void Elevator::VisitFloor(int floor)
 {
     ElevatorLock->Acquire();
@@ -115,8 +113,8 @@ void Elevator::VisitFloor(int floor)
 
 //----------------------------------------------------------------------
 // Elevator::Enter
-//   Set the EveneBarrier according to the request of up and down
 //----------------------------------------------------------------------
+
 bool Elevator::Enter()
 {
     alarms->Pause(TICK);
@@ -153,13 +151,12 @@ bool Elevator::Enter()
         ElevatorLock->Release();
         return false;
     }
-
 }
 
 //----------------------------------------------------------------------
 // Elevator::Exit
-//   Make the corresponding EventBarrier(outRequest) send a 'Complete' signal
 //----------------------------------------------------------------------
+
 void Elevator::Exit()
 {
     alarms->Pause(TICK);
@@ -170,9 +167,8 @@ void Elevator::Exit()
 
 //----------------------------------------------------------------------
 // Elevator::RequestFloor
-//   Set the request for the corresponding floor,and block the thread
-//on the EventBarrier
 //----------------------------------------------------------------------
+
 void Elevator::RequestFloor(int floor)
 {
     isOut[floor] = true;
@@ -181,10 +177,8 @@ void Elevator::RequestFloor(int floor)
 
 //----------------------------------------------------------------------
 // Elevator::getRequest
-//     If evelatorState is STAY, go through the EventBarrier and find a
-// request. In other cases, get the request from the farthest end in the
-//current direction. If no request is found, return -1.
 //----------------------------------------------------------------------
+
 int Elevator::getRequest()
 {
     ElevatorLock->Acquire();
@@ -228,10 +222,10 @@ int Elevator::getRequest()
     return request;
 }
 
-
 //----------------------------------------------------------------------
 // Elevator::goUp
 //----------------------------------------------------------------------
+
 int Elevator::goUp()
 {
     alarms->Pause(TICK);
@@ -242,6 +236,7 @@ int Elevator::goUp()
 //----------------------------------------------------------------------
 // Elevator::goDown
 //----------------------------------------------------------------------
+
 int Elevator::goDown()
 {
     alarms->Pause(TICK);
@@ -252,6 +247,7 @@ int Elevator::goDown()
 //----------------------------------------------------------------------
 // Building::Building
 //----------------------------------------------------------------------
+
 Building::Building(char *debugname, int numFloors, int numElevators)
 {
     name = debugname;
@@ -262,6 +258,7 @@ Building::Building(char *debugname, int numFloors, int numElevators)
 //----------------------------------------------------------------------
 // Building::~Building
 //----------------------------------------------------------------------
+
 Building::~Building()
 {
     delete elevator;
@@ -269,9 +266,8 @@ Building::~Building()
 
 //----------------------------------------------------------------------
 // Building::CallUp
-//   Set the uplink request of fromFloor to true and send a 'Signal' signal
-// to the elevator thread blocking on the condition variable
 //----------------------------------------------------------------------
+
 void Building::CallUp(int fromFloor)
 {
     elevator->isUp[fromFloor] = true;
@@ -282,9 +278,8 @@ void Building::CallUp(int fromFloor)
 
 //----------------------------------------------------------------------
 // Building::CallDown
-//   Set the downlink request of fromFloor to true and send a 'Signal' signal
-// to the elevator thread blocking on the condition variable
 //----------------------------------------------------------------------
+
 void Building::CallDown(int fromFloor)
 {
     elevator->isDown[fromFloor] = true;
@@ -295,8 +290,8 @@ void Building::CallDown(int fromFloor)
 
 //----------------------------------------------------------------------
 // Building::AwaitUp
-//   Block the thread on the EventBarrier corresponding to the fromFloor
 //----------------------------------------------------------------------
+
 Elevator *Building::AwaitUp(int fromFloor)
 {
     elevator->upRequest[fromFloor]->Wait();
@@ -305,8 +300,8 @@ Elevator *Building::AwaitUp(int fromFloor)
 
 //----------------------------------------------------------------------
 // Building::AwaitDown
-//   Block the thread on the EventBarrier corresponding to the fromFloor
 //----------------------------------------------------------------------
+
 Elevator *Building::AwaitDown(int fromFloor)
 {
     elevator->downRequest[fromFloor]->Wait();

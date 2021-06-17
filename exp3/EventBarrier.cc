@@ -1,65 +1,41 @@
-// EventBarrier.cc
-//
-// Copyright (c) 2020 MarxYoung.
-// All rights reserved.  See copyright.h for copyright notice and limitation
-// of liability and disclaimer of warranty provisions.
-
 #include "copyright.h"
 #include "EventBarrier.h"
 #include "system.h"
 
-//#define OUTPUT_INFO
-
-//----------------------------------------------------------------------
-// EventBarrier::EventBarrier
-//	Initialize an EventBarrier with no waiters and unsignaled
-//  "debugName" is an arbitrary name, useful for debugging.
-//----------------------------------------------------------------------
-
-EventBarrier::EventBarrier(char *debugName)
+EventBarrier::EventBarrier(char *debugName, int lv)
 {
     waitersCnt = 0;
-    state = false;
+    signaled = false;
+    logLevel = lv;
     signalLock = new Lock(debugName);
     signalCond = new Condition(debugName);
     signalMutex = new Lock(debugName);
-    completeLockSignal = new Lock(debugName);
-    completeCondSignal = new Condition(debugName);
-    completeLockWait = new Lock(debugName);
-    completeCondWait = new Condition(debugName);
+    controllerLock = new Lock(debugName);
+    controllerCond = new Condition(debugName);
+    completeLock = new Lock(debugName);
+    completeCond = new Condition(debugName);
 }
-
-//----------------------------------------------------------------------
-// EventBarrier::~EventBarrier
-//  De-allocate an EventBarrier, when no longer needed.
-//  Assume there are no waiters or signaler waiting!
-//----------------------------------------------------------------------
 
 EventBarrier::~EventBarrier()
 {
     delete signalLock;
     delete signalCond;
-    delete completeLockSignal;
-    delete completeCondSignal;
-    delete completeLockWait;
-    delete completeCondWait;
+    delete controllerLock;
+    delete controllerCond;
+    delete completeLock;
+    delete completeCond;
 }
-
-//----------------------------------------------------------------------
-// EventBarrier::Wait
-//  Wait until the event is signaled. Return immediately
-//  if already in the signaled state.
-//----------------------------------------------------------------------
 
 void
 EventBarrier::Wait()
 {
     signalLock->Acquire();
-    #ifdef OUTPUT_INFO
+
+    if (logLevel == 1)
         printf("**%s Wait\n", currentThread->getName());
-    #endif
+
     waitersCnt++;
-    if (state)
+    if (signaled)
     {
         signalLock->Release();
         return;
@@ -69,80 +45,60 @@ EventBarrier::Wait()
     signalLock->Release();
 }
 
-//----------------------------------------------------------------------
-// EventBarrier::Signal
-//  Signal the event and block until all threads that wait for this
-//  event have responded. The EventBarrier reverts to the unsignaled
-//  state when Signal() returns.
-//----------------------------------------------------------------------
-
 void
 EventBarrier::Signal()
 {
     signalMutex->Acquire();
+
     signalLock->Acquire();
-    state = true;       // set EventBarrier to signaled state
+    signaled = true;       // set EventBarrier to signaled state
     signalCond->Broadcast(signalLock);
     signalLock->Release();
 
-    #ifdef OUTPUT_INFO
+    if (logLevel == 1)
         printf("**%s Signal\n", currentThread->getName());
-    #endif
 
-    completeLockSignal->Acquire();
-    completeCondSignal->Wait(completeLockSignal);
-    completeLockSignal->Release();
+    //controller go to sleep
+    controllerLock->Acquire();
+    controllerCond->Wait(controllerLock);
+    controllerLock->Release();
+    
+    //controller signal completeCond
+    completeLock->Acquire();
+    completeCond->Broadcast(completeLock);
 
-    completeLockWait->Acquire();
-    completeCondWait->Broadcast(completeLockWait);
+    signaled = false;      // EventBarrier reverts to unsignaled state
 
-    state = false;      // EventBarrier reverts to unsignaled state
-
-    #ifdef OUTPUT_INFO
+    if (logLevel == 1)
         printf("**%s passes the EventBarrier\n", currentThread->getName());
-    #endif
 
-    completeLockWait->Release();
+    completeLock->Release();
+
     signalMutex->Release();
 }
-
-//----------------------------------------------------------------------
-// EventBarrier::Complete
-//  Indicate that the calling thread has finished responding to a
-//  signaled event, and block until all other threads that wait for
-//  this event have also responded.
-//----------------------------------------------------------------------
 
 void
 EventBarrier::Complete()
 {
-    completeLockWait->Acquire();
+    completeLock->Acquire();
 
     if (--waitersCnt == 0)
     {
-        completeLockSignal->Acquire();
-        completeCondSignal->Broadcast(completeLockSignal);
-        completeLockSignal->Release();
+        controllerLock->Acquire();
+        controllerCond->Broadcast(controllerLock);
+        controllerLock->Release();
     }
 
-    #ifdef OUTPUT_INFO
+    if (logLevel == 1)
         printf("**%s Respond\n", currentThread->getName());
-    #endif
 
-    completeCondWait->Wait(completeLockWait);
+    completeCond->Wait(completeLock);
 
-    #ifdef OUTPUT_INFO
+    if (logLevel == 1)
         printf("**%s passes the EventBarrier\n", currentThread->getName());
-    #endif
 
-    completeLockWait->Release();
+    completeLock->Release();
 }
-
-//----------------------------------------------------------------------
-// EventBarrier::Waiters
-//  Return a count of threads that are waiting for the event or that
-//  have not yet responded to it.
-//----------------------------------------------------------------------
 
 int
 EventBarrier::Waiters()

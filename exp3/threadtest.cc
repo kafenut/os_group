@@ -1,9 +1,9 @@
 // threadtest.cc
-//	Simple test case for the threads assignment.
+//  Simple test case for the threads assignment.
 //
-//	Create two threads, and have them context switch
-//	back and forth between themselves by calling Thread::Yield,
-//	to illustrate the inner workings of the thread system.
+//  Create two threads, and have them context switch
+//  back and forth between themselves by calling Thread::Yield,
+//  to illustratethe inner workings of the thread system.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
@@ -17,11 +17,8 @@
 #include "BoundedBuffer.h"
 #include "EventBarrier.h"
 #include "Elevator.h"
-<<<<<<< HEAD
-#define STOP_TIME 1000000
-=======
+
 #define STOP_TIME 800000
->>>>>>> 7a95b12f52005db4f4e1ab4f6c13ba450bd42216
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -40,11 +37,11 @@ Building *building;
 
 //----------------------------------------------------------------------
 // SimpleThread
-// 	Loop 5 times, yielding the CPU to another ready thread
-//	each iteration.
+//  Loop 5 times, yielding the CPU to another ready thread
+//  each iteration.
 //
-//	"which" is simply a number identifying the thread, for debugging
-//	purposes.
+//  "which" is simply a number identifying the thread, for debugging
+//  purposes.
 //----------------------------------------------------------------------
 
 void
@@ -53,15 +50,14 @@ SimpleThread(int which)
     int num;
 
     for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", which, num);
+    printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
     }
 }
 
-
 //----------------------------------------------------------------------
 // ConcurrentError1
-// 	insert N items -- switch threads -- remove N items -- switch threads
+//  insert N items -- switch threads -- remove N items -- switch threads
 // Error phenomenon
 //  thread may take out items that do not belong to itself
 //----------------------------------------------------------------------
@@ -69,89 +65,42 @@ SimpleThread(int which)
 void
 ConcurrentError1(int which)
 {
-    lock->Acquire();    // Here we consider a situation that we want to
-    cond->Wait(lock);   // remove the items just inserted, so we nedd to
-    lock->Release();    // enforce mutual exclusive in addtion to inside's
     printf("*** thread %d\n", which);
     GenerateN(N, list);
     currentThread->Yield();
     printf("*** thread %d\n", which);
     RemoveN(N, list);
-    lock->Acquire();
-    cond->Signal(lock);
-    lock->Release();
     currentThread->Yield();
 }
-
-//----------------------------------------------------------------------
-// ConcurrentError2
-// 	switch threads before setting list->first when inserting an item
-//  into an empty list
-// Error phenomenon
-//  list will lose some items
-//----------------------------------------------------------------------
 
 void
 ConcurrentError2(int which)
 {
-    printf("*** thread %d\n", which);  // Suppose that the thread cooperates with others
-    GenerateN(N, list);    // No need to keep mutual exclusion until removing
-    currentThread->Yield();
+    int key[] = { 3,2,1,4,5,6};
+    int item[] = {1,2,3,4,5,6};
+    int i = 0;
+    while (++i < 4) {
+        printf("*** thread %d is going to insert an item with key: %d\n",
+                                            which, key[(i - 1) * 2 + which]);
+        list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
+        list->Show();
+        currentThread->Yield();
+    }
     printf("*** thread %d\n", which);
-    RemoveN(N, list);
+    RemoveN(3, list);
 }
-
-//----------------------------------------------------------------------
-// ConcurrentError3
-// 	switch threads after setting list->first when inserting an item
-//  into an empty list
-// Error phenomenon
-//  segment fault
-//----------------------------------------------------------------------
 
 void
 ConcurrentError3(int which)
 {
-    int key[] = {1,2};  // 2rd thread's item's key > 1st thread's item's key
-                        // so that a segment fault will occur in
-                        // "else if (sortKey >= last->key)"(DLList::SortedInsert)
-    int item[] = {11,22};
-    printf("*** thread %d is going to insert an item with key: %d\n", which, key[which % 2]);
-    list->SortedInsert(&item[which % 2], key[which % 2]);
-    printf("*** thread %d\n", which);
-    RemoveN(1, list);
-}
-
-//----------------------------------------------------------------------
-// ConcurrentError4
-//  switch threads after setting element to first
-// Error phenomenon
-//  memory access error
-//----------------------------------------------------------------------
-
-void
-ConcurrentError4(int which)
-{
-    ConcurrentError2(which);
-}
-
-//----------------------------------------------------------------------
-// ConcurrentError5
-//  switch threads before setting first/last to element(in SortedInsert)
-// Error phenomenon
-//  list will lose some items
-//----------------------------------------------------------------------
-void
-ConcurrentError5(int which)
-{
-    int key[] = {5,4,3,8,9,10};
+    int key[] = {4,5,3,8,9,10};
     int item[] = {11,22,33,44,55,66};
     int i = 0;
     while (++i < 4) {
         printf("*** thread %d is going to insert an item with key: %d\n",
                                             which, key[(i - 1) * 2 + which]);
         list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
-        list->PrintList();
+        list->Show();
         currentThread->Yield();
     }
     //printf("*** thread %d\n", which);
@@ -159,35 +108,50 @@ ConcurrentError5(int which)
     printf("*** thread %d\n", which);
     RemoveN(3, list);
 }
-
-//----------------------------------------------------------------------
-// ConcurrentError6
-//  switch threads after finding the insertion position(in SortedInsert)
-// Error phenomenon
-//  some items are out of order in the list
-//----------------------------------------------------------------------
 void
-ConcurrentError6(int which)
+ConcurrentError4(int which)
 {
-    int key[] = {1,100,70,60,50,40};
-    int item[] = {11,22,33,44,55,66};
+    int item[] = {0,0,0,0,0,0};
     int i = 0;
-    while (++i < 4) {
-        printf("*** thread %d is going to insert an item with key: %d\n",
-                                            which, key[(i - 1) * 2 + which]);
-        list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
-        list->PrintList();
+    if(which == 0)
+    {
+        printf("*** thread %d is going to insert the first element key = 10 \n",which);
+        list->SortedInsert(&item[i], 10);
+        list->Show();
+        currentThread->Yield();
+        while (i++ < 3)
+        {
+            printf("***1 thread %d\n",which);
+            list->Prepend(&item[i]);
+            list->Show();
+        }
+                currentThread->Yield();
+        while (i++ <=6)
+        {
+            printf("***1 thread %d\n",which);
+            list->Prepend(&item[i]);
+            list->Show();
+        }
+
+    }
+    else
+    {
+        printf("*** thread %d remove\n",which);
+        list->Remove();
+        list->Show();
         currentThread->Yield();
     }
-    //currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(3, list);
-}
 
-const int error_num = 6;    // total number of concurrent errors
+
+    //printf("*** thread %d\n", which);
+    //currentThread->Yield();
+    //printf("*** thread %d\n", which);
+}
+const int error_num = 4;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
-                                    ConcurrentError4, ConcurrentError5, ConcurrentError6};
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,ConcurrentError4};
+                                    //ConcurrentError4, ConcurrentError5, ConcurrentError6};
+
 
 void
 SynThread(int which)
@@ -199,10 +163,11 @@ SynThread(int which)
     printf("*** thread %d is awakened\n", which);
 }
 
+
 //----------------------------------------------------------------------
 // ThreadTest1
-// 	Set up a ping-pong between two threads, by forking a thread
-//	to call SimpleThread, and then calling SimpleThread ourselves.
+//  Set up a ping-pong between two threads, by forking a thread
+//  to call SimpleThread, and then calling SimpleThread ourselves.
 //----------------------------------------------------------------------
 
 void
@@ -217,8 +182,8 @@ ThreadTest1()
 }
 
 //----------------------------------------------------------------------
-// ThreadTest2
-//  Demonstrate concurrency errors.
+//ThreadTest2
+//
 //----------------------------------------------------------------------
 
 void
@@ -287,7 +252,7 @@ void ThreadTest3()
 
 //----------------------------------------------------------------------
 //TableActions
-//	Create a table according to parameter N.
+//  Create a table according to parameter N.
 //  Store, get and release elements while switching threads.
 //----------------------------------------------------------------------
 void
@@ -296,7 +261,7 @@ TableActions(int which)
     int indexArr[N];
     //
     for(int i =0; i < N; i++) {
-        void *obj = (void *)(Random() % 100);
+        void *obj = (void *)(Random() % 1000);
         indexArr[i] = table->Alloc(obj);
         printf("*** thread %d stores %d at [%d] ***\n", which, (int)obj, indexArr[i]);
         currentThread->Yield();
@@ -317,7 +282,7 @@ TableActions(int which)
 
 //----------------------------------------------------------------------
 //TableTest
-//	T = number of threads, N = number of obj for allocation each threads.
+//  T = number of threads, N = number of obj for allocation each threads.
 //  Create a shared table with the size of T * N.
 //  Fork threads to invoke TableActions.
 //----------------------------------------------------------------------
@@ -336,60 +301,62 @@ TableTest()
 }
 //----------------------------------------------------------------------
 //WriteBuffer
-//	Create an pointer named 'data' that points to an area with
+//  Create an pointer named 'data' that points to an area with
 //'num' pieces of data and write these data to the buffer.
 //----------------------------------------------------------------------
 
 void
 WriteBuffer(int num)
 {
-    printf("\nCurrent thread is write thread :%s\n", currentThread -> getName());
-    int data[num];
+    printf("\n%s : \n", currentThread->getName());
+    char* data = new char;
     int i;
-    for(i = 0; i<num; i++)
+    for (i = 0; i < num; i++)
     {
-	    *(data + i) = Random() % 100;
+        *(data + i) = (Random() % 26) + 65;
     }
-    printf("%s will write these data to buffer:", currentThread -> getName());
-    for(i = 0;i < num-1;i++)
-        printf("%d ",*(data + i));
-    printf("%d\n",*(data + i));
-    buffer->Write((void *)data,num);
-    printf("%s finished,",currentThread -> getName());
-    buffer->PrintBuffer();
+    printf("will write these data to buffer:\n");
+    for (i = 0; i < num - 1; i++)
+        printf("%c ", *(data + i));
+    printf("%c\n", *(data + i));
+
+    buffer->Write((void*)data, num);
+
+    printf("---%s finished writing---\n", currentThread->getName());
+    buffer->Showbuffer();
 }
 
 //----------------------------------------------------------------------
 //ReadBuffer
-//	Read 'num' bytes of data from buffer to the area at the
+//  Read 'num' bytes of data from buffer to the area at the
 //beginning of '* data'
 //----------------------------------------------------------------------
 
 void
 ReadBuffer(int num)
 {
-    printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
-    int data[num + 1];
-    buffer -> Read((void *)data,num);
-    printf("%s finished,read these data from buffer:",currentThread -> getName());
+    printf("\n %s : \n", currentThread->getName());
+    char* data = new char;
+    buffer->Read((void*)data, num);
+    printf("---%s finished reading---\nread these data from buffer:\n", currentThread->getName());
     int i;
-    for (i = 0;i<num-1;i++)
-	printf("%d ",*(data + i));
-    printf("%d\n",*(data + i));
-    buffer -> PrintBuffer();
+    for (i = 0; i < num - 1; i++)
+        printf("%c ", *(data + i));
+    printf("%c\n", *(data + i));
+    buffer->Showbuffer();
 }
 
 
 //----------------------------------------------------------------------
 //BufferTest
-// 	Invoke a buffer test routine.In this test routine,we create
+//  Invoke a buffer test routine.In this test routine,we create
 //       some read thread and wtire thread to test whether current
 //       buffer is thread-safe.
 //       Some Params:
-//	T:maxsize of boundedbuffer
+//  T:maxsize of boundedbuffer
 //  N:num of read threads(read from buffer)
-//	E:num of write threads(write to buffer)
-//	num1:num of read bytes
+//  E:num of write threads(write to buffer)
+//  num1:num of read bytes
 //  num2:num of write bytes
 //----------------------------------------------------------------------
 void
@@ -398,9 +365,9 @@ BufferTest()
      int num1, num2, i;
      DEBUG('t', "Entering BufferTest");
      buffer = new BoundedBuffer(T);
-     printf("\nEnter read bytes:");
+     printf("\nread bytes:");
      scanf("%d", &num1);
-     printf("\nEnter write bytes:");
+     printf("\nwrite bytes:");
      scanf("%d", &num2);
      printf("\n");
     int k, count1 = 0, count2 = 0;
@@ -449,7 +416,6 @@ BufferTest()
 
 //----------------------------------------------------------------------
 // EventBarrierSignalThread
-//  Signal for specified EventBarrier.
 //----------------------------------------------------------------------
 
 void
@@ -460,8 +426,6 @@ EventBarrierSignalThread(int which)
 
 //----------------------------------------------------------------------
 // EventBarrierWaitThread1
-//  Wait on specified EventBarrier and wait for other waiters
-//  before Complete.
 //----------------------------------------------------------------------
 
 void
@@ -477,8 +441,6 @@ EventBarrierWaitThread1(int which)
 
 //----------------------------------------------------------------------
 // EventBarrierWaitThread2
-//  Wait on specified EventBarrier and call Wait again immediately
-//  after returning from Complete.
 //----------------------------------------------------------------------
 
 void
@@ -493,8 +455,8 @@ EventBarrierWaitThread2(int which)
 
 //----------------------------------------------------------------------
 // EventBarrierTest
-//  A test routine for EventBarrier.
 //----------------------------------------------------------------------
+
 void
 EventBarrierTest(int part)
 {
@@ -562,8 +524,8 @@ EventBarrierTest(int part)
 
 //----------------------------------------------------------------------
 // AlarmActions
-//  Set a random time for a thread to sleep.
 //----------------------------------------------------------------------
+
 void
 AlarmActions(int which)
 {
@@ -575,8 +537,8 @@ AlarmActions(int which)
 
 //----------------------------------------------------------------------
 // AlarmTest
-//  A test routine for Alarm. t stands for number of threads.
 //----------------------------------------------------------------------
+
 void
 AlarmTest(int t)
 {
@@ -584,9 +546,9 @@ AlarmTest(int t)
     printf("Attention: time of thread going to sleep + duration set for sleep may not equal time of thread woke up due to multiple reasons.\n");
     for(int i = 0; i < t; i ++) {
         char *threadName = new char[10];
-		sprintf(threadName, "thread%d", i);
-		Thread *t = new Thread(threadName);
-		t->Fork(AlarmActions, i);
+        sprintf(threadName, "thread%d", i);
+        Thread *t = new Thread(threadName);
+        t->Fork(AlarmActions, i);
     }
 }
 
@@ -595,13 +557,8 @@ AlarmTest(int t)
 
 //----------------------------------------------------------------------
 // ElevatorThread
-//   Using this thread to control the operation of the elevator and
-// change the state of the elevator.
-//   When elevatorState is UP or DOWN, the elevator moves in only one
-// direction, finding the furthest request in the current direction each
-// time it gets the request, and satisfying all outstanding requests
-// on the way.
 //----------------------------------------------------------------------
+
 void ElevatorThread(int which)
 {
     Elevator *e = building->elevator;
@@ -613,13 +570,13 @@ void ElevatorThread(int which)
         {
             e->ElevatorLock->Acquire();
             printf("** %2d Floor! [STOP]**\n",e->currentfloor);
-            if(dstfloor == -1)//If no request,thread blocks itself until it is awakened
+            if(dstfloor == -1)
             {
                 e->HaveRequest->Wait(e->ElevatorLock);
             }
             e->ElevatorLock->Release();
             printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
-            dstfloor = e->getRequest();//Decide whether to change the status of the elevator by dst's value
+            dstfloor = e->getRequest();
             if(dstfloor > e->currentfloor)
                 e->elevatorState = UP;
             else
@@ -639,7 +596,7 @@ void ElevatorThread(int which)
                 printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
                 dstfloor = e->getRequest();
             }
-            if(!e->isUp[e->currentfloor])//if the request on dstFloor is not up,elevator turn around
+            if(!e->isUp[e->currentfloor])
             {
                 e->elevatorState = DOWN;
                 if(e->isDown[e->currentfloor] || e->isOut[e->currentfloor])
@@ -653,7 +610,7 @@ void ElevatorThread(int which)
                 else
                     e->VisitFloor(e->goDown());
             }
-            else//if the request on dstFloor is up
+            else
             {
                 e->OpenDoors();
                 e->CloseDoors();
@@ -661,7 +618,7 @@ void ElevatorThread(int which)
             }
             printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
         }
-        else//When elevatorstate is DOWN, it's the opposite of when it's UP.
+        else
         {
              while(e->currentfloor != dstfloor)
             {
@@ -704,10 +661,9 @@ void ElevatorThread(int which)
 
 //----------------------------------------------------------------------
 // riderTest
-//   Create a passenger thread and randomly generate the start floor and
-// destination floor to simulate the passenger request.
 //----------------------------------------------------------------------
-void riderTest(int id)//It's almost the same as the given example rider thread
+
+void riderTest(int id)
 {
     while(true)
     {
@@ -737,13 +693,10 @@ void riderTest(int id)//It's almost the same as the given example rider thread
     }
 }
 
-
-
 //----------------------------------------------------------------------
 // ElevatorTest
-//   This function creates an instance of Building and generates an
-// elevator control thread and several passenger threads as required.
 //----------------------------------------------------------------------
+
 void ElevatorTest(int floornum, int ridernum,int capacity)
 {
     printf("---------Elevator Test--------\n");
@@ -781,14 +734,13 @@ void ElevatorTest(int floornum, int ridernum,int capacity)
         sprintf(threadName[i - 1], "thread %d (rider   thread)", i);
         t = new Thread(threadName[i - 1]);
         t->Fork(riderTest, i);
-        //currentThread->Yield();
     }
 }
 
 //----------------------------------------------------------------------
 // ThreadTest
-// 	Invoke a test routine.
 //----------------------------------------------------------------------
+
 
 void
 ThreadTest(int t, int n, int e)
@@ -803,7 +755,6 @@ ThreadTest(int t, int n, int e)
         E = e;
         ThreadTest2();
         break;
-    // test Lock and Condition
     case 3:
         ThreadTest3();
         break;
